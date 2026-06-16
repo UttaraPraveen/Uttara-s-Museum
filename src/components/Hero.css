@@ -1,0 +1,201 @@
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 3rem);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201, 169, 110, 0.12), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(139, 90, 60, 0.08), transparent 60%),
+    var(--cream);
+}
+
+.hero__arch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 720px);
+  height: clamp(180px, 28vw, 280px);
+  border: 2px solid var(--museum-gold);
+  border-bottom: none;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero__arch::after {
+  content: '';
+  position: absolute;
+  inset: 12px 12px 0;
+  border: 1px solid var(--museum-gold);
+  border-bottom: none;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  opacity: 0.5;
+}
+
+.hero__floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    to top,
+    rgba(139, 90, 60, 0.06) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.hero__artifacts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__artifact {
+  position: absolute;
+  color: var(--museum-bronze);
+  opacity: 0.35;
+  filter: drop-shadow(0 2px 8px rgba(139, 90, 60, 0.15));
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: 42rem;
+  text-align: center;
+}
+
+.hero__eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(0.75rem, 1.8vw, 0.875rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--museum-burgundy);
+  margin: 0 0 1.25rem;
+  opacity: 0.85;
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6.5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--museum-ink);
+  margin: 0 0 1.5rem;
+}
+
+.hero__title-accent {
+  display: block;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--museum-burgundy);
+  margin-top: 0.25em;
+}
+
+.hero__subtitle {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  line-height: 1.65;
+  color: var(--museum-muted);
+  margin: 0 auto 2.5rem;
+  max-width: 34rem;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--cream);
+  background: linear-gradient(
+    135deg,
+    var(--museum-burgundy) 0%,
+    #6b2d3e 100%
+  );
+  border: 2px solid var(--museum-gold);
+  border-radius: 2px;
+  box-shadow:
+    0 4px 20px rgba(107, 45, 62, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: box-shadow 0.3s ease;
+}
+
+.hero__cta:hover {
+  box-shadow:
+    0 8px 28px rgba(107, 45, 62, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.hero__cta:focus-visible {
+  outline: 2px solid var(--museum-gold);
+  outline-offset: 4px;
+}
+
+.hero__cta-arrow {
+  font-size: 1.2em;
+  transition: transform 0.3s ease;
+}
+
+.hero__cta:hover .hero__cta-arrow {
+  transform: translateX(4px);
+}
+
+.hero__plaque {
+  position: absolute;
+  bottom: clamp(1.5rem, 4vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--museum-bronze);
+  background: rgba(250, 246, 240, 0.7);
+  border: 1px solid var(--museum-gold);
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+.hero__plaque-dot {
+  opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+  .hero__artifact:nth-child(n + 6) {
+    display: none;
+  }
+
+  .hero__arch {
+    width: 96vw;
+    opacity: 0.25;
+  }
+
+  .hero__plaque {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    max-width: 90%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__artifact {
+    animation: none !important;
+    opacity: 0.3;
+  }
+}
