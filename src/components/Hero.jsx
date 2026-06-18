@@ -1,104 +1,1355 @@
-import { motion } from 'framer-motion'
+import { useState, useEffect, useRef } from "react";
 import {
-  Telescope,
-  Gem,
-  Compass,
-  Key,
-  ScrollText,
-  Feather,
+  FolderGit,
+  Briefcase,
+  Mail,
+  FileText,
+  ChevronDown,
+  Globe,
+  Mic,
+  Film,
   Sparkles,
-} from 'lucide-react'
-import './Hero.css'
+  Users,
+  Code,
+  BookOpen,
+  Star,
+  Map,
+  Compass,
+  FlaskConical,
+  Trophy,
+  MessageSquare,
+  CloudSun,
+  Award,
+  Lightbulb,
+  HeartHandshake,
+  Cpu,
+  Rocket,
+  GitBranch,
+} from "lucide-react";
+import { HeroScrapbookLayer, PageScrapLayer, RoomDoodles } from "./ScrapbookFloats";
+import "../styles/scrapbook.css";
 
-const ARTIFACTS = [
-  { Icon: Telescope, top: '10%', left: '6%', size: 32, delay: 0, rotate: -12 },
-  { Icon: Gem, top: '18%', right: '10%', size: 28, delay: 0.8, rotate: 15 },
-  { Icon: Compass, top: '55%', left: '4%', size: 26, delay: 1.4, rotate: -8 },
-  { Icon: Key, top: '72%', right: '7%', size: 24, delay: 0.4, rotate: 20 },
-  { Icon: ScrollText, top: '38%', right: '5%', size: 30, delay: 1.1, rotate: -18 },
-  { Icon: Feather, top: '65%', left: '12%', size: 22, delay: 1.8, rotate: 10 },
-  { Icon: Sparkles, top: '28%', left: '18%', size: 20, delay: 2.2, rotate: -5 },
-  { Icon: Gem, top: '82%', left: '22%', size: 18, delay: 0.6, rotate: 25 },
-]
+// ─── Fonts ────────────────────────────────────────────────────────────────────
+const FontLoader = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400;500&family=Caveat:wght@400;500;600;700&display=swap');
 
-function FloatingArtifact({ Icon, style, delay, rotate, size }) {
-  return (
-    <motion.div
-      className="hero__artifact"
-      style={style}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{
-        opacity: [0.25, 0.45, 0.25],
-        y: [0, -14, 0],
-        rotate: [rotate, rotate + 6, rotate],
-      }}
-      transition={{
-        opacity: { duration: 5, repeat: Infinity, ease: 'easeInOut', delay },
-        y: { duration: 6 + delay, repeat: Infinity, ease: 'easeInOut', delay },
-        rotate: { duration: 8 + delay, repeat: Infinity, ease: 'easeInOut', delay },
-      }}
-      aria-hidden="true"
-    >
-      <Icon size={size} strokeWidth={1.25} />
-    </motion.div>
-  )
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --parchment:   #F5EFE0;
+      --parchment-2: #EDE4CC;
+      --brown:       #4A3728;
+      --brown-light: #7A5C45;
+      --ink:         #2C1810;
+      --rose:        #C4896F;
+      --gold:        #C9A84C;
+      --sage:        #7A8C6E;
+      --cream-card:  #FAF6ED;
+      --divider:     rgba(74,55,40,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--parchment);
+      color: var(--brown);
+      font-family: 'EB Garamond', serif;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', serif;
+      color: var(--ink);
+    }
+
+    .mono { font-family: 'DM Mono', monospace; }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.6;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--parchment-2); }
+    ::-webkit-scrollbar-thumb { background: var(--brown-light); border-radius: 4px; }
+
+    /* Selection */
+    ::selection { background: var(--gold); color: var(--ink); }
+
+    /* Museum divider rope */
+    .rope-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 40px 0;
+    }
+    .rope-divider::before,
+    .rope-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, var(--brown-light) 0, var(--brown-light) 4px, transparent 4px, transparent 8px);
+      opacity: 0.4;
+    }
+    .rope-icon { color: var(--gold); font-size: 14px; }
+
+    /* Exhibit number badge */
+    .exhibit-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--rose);
+      background: rgba(196,137,111,0.1);
+      border: 1px solid rgba(196,137,111,0.3);
+      border-radius: 3px;
+      padding: 2px 8px;
+    }
+
+    /* Polaroid card */
+    .polaroid {
+      background: white;
+      padding: 14px 14px 40px;
+      box-shadow:
+        0 2px 4px rgba(44,24,16,0.08),
+        0 8px 24px rgba(44,24,16,0.12),
+        2px 2px 0 rgba(44,24,16,0.04);
+      transform-origin: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .polaroid:hover {
+      box-shadow:
+        0 4px 8px rgba(44,24,16,0.12),
+        0 16px 40px rgba(44,24,16,0.18),
+        2px 2px 0 rgba(44,24,16,0.06);
+    }
+
+    /* Museum room header */
+    .room-header {
+      text-align: center;
+      padding: 60px 20px 40px;
+      position: relative;
+    }
+    .room-header::before {
+      content: attr(data-room);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    /* Floating artifact keyframes */
+    @keyframes floatA {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-18px) rotate(3deg); }
+    }
+    @keyframes floatB {
+      0%, 100% { transform: translateY(0) rotate(5deg); }
+      50% { transform: translateY(-12px) rotate(-2deg); }
+    }
+    @keyframes floatC {
+      0%, 100% { transform: translateY(-6px) rotate(1deg); }
+      50% { transform: translateY(10px) rotate(-4deg); }
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes borderGlow {
+      0%, 100% { border-color: rgba(201,168,76,0.3); }
+      50% { border-color: rgba(201,168,76,0.7); }
+    }
+    @keyframes tickerScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .float-a { animation: floatA 6s ease-in-out infinite; }
+    .float-b { animation: floatB 7s ease-in-out infinite 1s; }
+    .float-c { animation: floatC 5s ease-in-out infinite 2s; }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+    .stagger-5 { transition-delay: 0.5s; }
+    .stagger-6 { transition-delay: 0.6s; }
+
+    /* Nav */
+    .museum-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      background: rgba(245,239,224,0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--divider);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      transition: all 0.3s;
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+    }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brown-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--rose); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .museum-nav { padding: 0 20px; }
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-arch {
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      border: 1px solid rgba(74,55,40,0.08);
+      border-radius: 0 0 300px 300px;
+      border-top: none;
+      pointer-events: none;
+    }
+    .hero-arch-2 {
+      width: 800px;
+      height: 500px;
+      border-color: rgba(74,55,40,0.05);
+    }
+    .museum-title {
+      font-size: clamp(36px, 6vw, 78px);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      max-width: 900px;
+      margin-bottom: 24px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+    .museum-title .highlight {
+      font-style: italic;
+      color: var(--rose);
+    }
+    .hero-subtitle {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--brown);
+      max-width: 560px;
+      margin-bottom: 48px;
+      font-style: italic;
+    }
+    .enter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--ink);
+      color: var(--parchment);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 2px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.25s, transform 0.25s;
+      text-decoration: none;
+    }
+    .enter-btn:hover {
+      background: var(--brown);
+      transform: translateY(-2px);
+    }
+    .floating-artifacts {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .artifact {
+      position: absolute;
+      opacity: 0.22;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .scroll-hint span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--brown-light);
+      opacity: 0.7;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+    .scroll-hint svg { animation: bounce 2s ease-in-out infinite; color: var(--brown-light); opacity: 0.6; }
+
+    /* Ticker */
+    .ticker {
+      background: var(--ink);
+      color: var(--parchment);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      padding: 10px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: inline-flex;
+      animation: tickerScroll 28s linear infinite;
+    }
+    .ticker-item { padding: 0 32px; opacity: 0.8; }
+    .ticker-dot { color: var(--gold); margin-right: 32px; }
+
+    /* Section wrapper */
+    .section {
+      padding: 80px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* About plaque */
+    .plaque-outer {
+      border: 2px solid var(--brown);
+      border-radius: 4px;
+      padding: 4px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .plaque-inner {
+      border: 1px solid var(--brown);
+      border-radius: 3px;
+      padding: 48px 56px;
+      position: relative;
+      background: var(--cream-card);
+    }
+    .plaque-corner {
+      position: absolute;
+      width: 16px; height: 16px;
+      background: var(--brown);
+      border-radius: 50%;
+    }
+    .plaque-corner.tl { top: 12px; left: 12px; }
+    .plaque-corner.tr { top: 12px; right: 12px; }
+    .plaque-corner.bl { bottom: 12px; left: 12px; }
+    .plaque-corner.br { bottom: 12px; right: 12px; }
+    .plaque-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .plaque-name {
+      font-size: clamp(28px, 4vw, 42px);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .plaque-tagline {
+      text-align: center;
+      color: var(--brown-light);
+      font-style: italic;
+      margin-bottom: 32px;
+    }
+    .plaque-fields { display: flex; flex-direction: column; gap: 12px; }
+    .plaque-field {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 12px;
+      border-bottom: 1px dashed rgba(74,55,40,0.15);
+      padding-bottom: 12px;
+    }
+    .field-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .field-value { color: var(--brown); }
+
+    @media (max-width: 600px) {
+      .plaque-inner { padding: 32px 24px; }
+      .plaque-field { grid-template-columns: 1fr; gap: 2px; }
+    }
+
+    /* Project cards */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 40px;
+      margin-top: 48px;
+    }
+    .project-polaroid {
+      background: white;
+      padding: 16px 16px 48px;
+      box-shadow: 0 3px 6px rgba(44,24,16,0.08), 0 12px 32px rgba(44,24,16,0.12);
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+      position: relative;
+    }
+    .project-polaroid:nth-child(odd) { transform: rotate(-1.5deg); }
+    .project-polaroid:nth-child(even) { transform: rotate(1deg); }
+    .project-polaroid:hover {
+      transform: rotate(0) translateY(-8px) scale(1.02) !important;
+      box-shadow: 0 8px 16px rgba(44,24,16,0.12), 0 24px 60px rgba(44,24,16,0.18);
+      z-index: 10;
+    }
+    .project-image {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--parchment-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-image-icon { opacity: 0.2; }
+    .project-image-pattern {
+      position: absolute;
+      inset: 0;
+      background-size: 20px 20px;
+      opacity: 0.15;
+    }
+    .polaroid-caption {
+      padding: 0 4px;
+    }
+    .polaroid-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--rose);
+      letter-spacing: 0.15em;
+      margin-bottom: 4px;
+    }
+    .polaroid-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .polaroid-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--brown-light);
+    }
+
+    /* Expanded project modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44,24,16,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-card {
+      background: var(--cream-card);
+      border: 1px solid var(--divider);
+      border-radius: 4px;
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none;
+      border: 1px solid var(--divider);
+      cursor: pointer;
+      padding: 6px 12px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--brown-light);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: var(--brown); color: var(--parchment); }
+    .modal-field { margin-bottom: 20px; }
+    .modal-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .modal-value { color: var(--brown); }
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .tech-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 3px 10px;
+      background: rgba(122,92,69,0.1);
+      border: 1px solid rgba(122,92,69,0.2);
+      border-radius: 2px;
+      color: var(--brown-light);
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 99px;
+    }
+    .status-active { background: rgba(122,140,110,0.15); color: var(--sage); border: 1px solid rgba(122,140,110,0.3); }
+    .status-complete { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Wing cards */
+    .wing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .wing-card {
+      background: var(--cream-card);
+      border: 1px solid var(--divider);
+      border-radius: 4px;
+      padding: 32px 28px;
+      position: relative;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .wing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(44,24,16,0.1);
+    }
+    .wing-card-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--rose);
+      letter-spacing: 0.15em;
+      margin-bottom: 14px;
+    }
+    .wing-card-icon {
+      width: 44px; height: 44px;
+      background: rgba(201,168,76,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: var(--gold);
+    }
+    .wing-card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .wing-card-desc { color: var(--brown-light); font-size: 15px; line-height: 1.6; }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      max-width: 700px;
+      margin: 48px auto 0;
+      padding: 0 24px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--brown-light) 10%, var(--brown-light) 90%, transparent);
+      transform: translateX(-50%);
+      opacity: 0.3;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+    .timeline-item:nth-child(even) { flex-direction: row-reverse; }
+    .timeline-dot {
+      flex-shrink: 0;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid var(--parchment);
+      box-shadow: 0 0 0 1px var(--gold);
+      position: relative;
+      z-index: 2;
+      margin-top: 6px;
+    }
+    .timeline-content {
+      flex: 1;
+      background: var(--cream-card);
+      border: 1px solid var(--divider);
+      border-radius: 4px;
+      padding: 20px 24px;
+    }
+    .timeline-item:nth-child(even) .timeline-content { text-align: right; }
+    .timeline-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+    .timeline-label { font-size: 17px; font-weight: 600; color: var(--ink); }
+    .timeline-note { font-size: 14px; color: var(--brown-light); font-style: italic; margin-top: 4px; }
+
+    @media (max-width: 640px) {
+      .timeline::before { left: 14px; }
+      .timeline-item, .timeline-item:nth-child(even) { flex-direction: row; }
+      .timeline-item:nth-child(even) .timeline-content { text-align: left; }
+    }
+
+    /* Future exhibits */
+    .future-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .future-card {
+      border: 2px dashed rgba(74,55,40,0.2);
+      border-radius: 4px;
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.25s, transform 0.25s;
+      cursor: default;
+    }
+    .future-card:hover {
+      border-color: var(--rose);
+      transform: translateY(-3px);
+    }
+    .coming-soon {
+      position: absolute;
+      top: -10px; left: 50%; transform: translateX(-50%);
+      background: var(--parchment);
+      padding: 0 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rose);
+      white-space: nowrap;
+    }
+    .future-icon {
+      width: 48px; height: 48px;
+      background: rgba(196,137,111,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      color: var(--rose);
+    }
+    .future-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .future-desc { color: var(--brown-light); font-size: 15px; }
+
+    /* Gift shop */
+    .gift-shop-section {
+      background: var(--ink);
+      color: var(--parchment);
+      padding: 80px 24px;
+      text-align: center;
+    }
+    .gift-intro-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+    .gift-title {
+      font-size: clamp(36px, 5vw, 64px);
+      color: var(--parchment);
+      margin-bottom: 16px;
+    }
+    .gift-subtitle {
+      color: rgba(245,239,224,0.6);
+      font-style: italic;
+      max-width: 500px;
+      margin: 0 auto 48px;
+      font-size: 18px;
+    }
+    .gift-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .souvenir {
+      background: rgba(245,239,224,0.06);
+      border: 1px solid rgba(245,239,224,0.15);
+      border-radius: 4px;
+      padding: 28px 32px;
+      text-align: center;
+      min-width: 180px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.25s, transform 0.25s, border-color 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .souvenir::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .souvenir:hover {
+      background: rgba(245,239,224,0.1);
+      border-color: var(--gold);
+      transform: translateY(-4px);
+    }
+    .souvenir:hover::after { opacity: 1; }
+    .souvenir-icon {
+      width: 48px; height: 48px;
+      background: rgba(201,168,76,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      color: var(--gold);
+    }
+    .souvenir-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(245,239,224,0.5);
+      margin-bottom: 6px;
+    }
+    .souvenir-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--parchment);
+    }
+
+    /* Footer */
+    .museum-footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,239,224,0.08);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .footer-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: rgba(245,239,224,0.35);
+    }
+    .footer-name {
+      color: var(--gold);
+      font-style: italic;
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    /* Room divider */
+    .room-divider {
+      text-align: center;
+      padding: 40px 0 0;
+      position: relative;
+    }
+    .room-divider::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: var(--divider);
+      margin-bottom: 32px;
+    }
+    .room-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    /* Animated bg circles */
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,137,111,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  `}</style>
+);
+
+// ─── Reveal hook ─────────────────────────────────────────────────────────────
+function useReveal() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
+      { threshold: 0.12 }
+    );
+    const items = el.querySelectorAll(".reveal");
+    items.forEach((i) => observer.observe(i));
+    return () => observer.disconnect();
+  }, []);
+  return ref;
 }
 
-export default function Hero() {
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const PROJECTS = [
+  {
+    id: "A-001",
+    title: "Collaborative Study App",
+    year: "2024",
+    icon: BookOpen,
+    purpose: "A real-time collaborative platform for students to study together, share notes, and quiz each other remotely.",
+    tech: ["React", "Firebase", "WebSockets", "Tailwind CSS"],
+    observation: "Students who used shared note-taking reported finishing revision 40% faster than solo studying.",
+    status: "active",
+    pattern: "radial-gradient(var(--parchment-2) 1px, transparent 1px)",
+    patternSize: "20px 20px",
+    color: "#7A8C6E",
+  },
+  {
+    id: "A-002",
+    title: "Unsent Messages",
+    year: "2023",
+    icon: MessageSquare,
+    purpose: "A cathartic web app where users write messages they never intend to send — processing emotions through words.",
+    tech: ["Next.js", "MongoDB", "Framer Motion", "Node.js"],
+    observation: "The most-used feature was the 'burn' animation — users needed to feel the message disappear.",
+    status: "complete",
+    pattern: "linear-gradient(45deg, var(--parchment-2) 25%, transparent 25%)",
+    patternSize: "10px 10px",
+    color: "#C4896F",
+  },
+  {
+    id: "A-003",
+    title: "Imposter Game",
+    year: "2023",
+    icon: FlaskConical,
+    purpose: "A multiplayer social deduction game inspired by Among Us — built from scratch with custom game logic.",
+    tech: ["React", "Socket.io", "Express", "Zustand"],
+    observation: "Peak simultaneous players: 47. Server crashed twice. Both times were considered features.",
+    status: "complete",
+    pattern: "repeating-linear-gradient(0deg, var(--parchment-2) 0, var(--parchment-2) 1px, transparent 1px, transparent 20px)",
+    patternSize: "auto",
+    color: "#C9A84C",
+  },
+  {
+    id: "A-004",
+    title: "Weather Forecast Predictor",
+    year: "2024",
+    icon: CloudSun,
+    purpose: "ML-powered weather prediction app that blends API data with local historical patterns for hyper-local forecasts.",
+    tech: ["Python", "scikit-learn", "React", "OpenWeather API"],
+    observation: "Accuracy improved 18% over the raw API by weighting micro-climate data from nearby stations.",
+    status: "active",
+    pattern: "radial-gradient(ellipse 40% 40% at 50% 50%, var(--parchment-2) 0%, transparent 100%)",
+    patternSize: "auto",
+    color: "#7A8C6E",
+  },
+  {
+    id: "A-005",
+    title: "Certificate Generator",
+    year: "2024",
+    icon: Award,
+    purpose: "Bulk certificate generation tool for FOSS Club events — handles custom templates, signatures, and email dispatch.",
+    tech: ["Python", "Pillow", "Flask", "SMTP", "Pandas"],
+    observation: "Generated and dispatched 300+ certificates in under 8 minutes for a single hackathon.",
+    status: "complete",
+    pattern: "repeating-linear-gradient(90deg, var(--parchment-2) 0, var(--parchment-2) 1px, transparent 1px, transparent 32px)",
+    patternSize: "auto",
+    color: "#C4896F",
+  },
+];
+
+const COMMUNITY = [
+  { num: "W-001", icon: GitBranch, title: "FOSS Club Secretary", desc: "Leading open source initiatives, managing the club's operations, and nurturing a community of curious builders at college." },
+  { num: "W-002", icon: Users, title: "Event Organizer", desc: "Conceptualized and ran workshops, hackathons, and tech talks — transforming abstract ideas into tangible experiences." },
+  { num: "W-003", icon: Mic, title: "Workshop Conductor", desc: "Facilitated hands-on sessions on Git, Linux, and web development for students stepping into the open source world." },
+  { num: "W-004", icon: Code, title: "Open Source Enthusiast", desc: "Believes software built in the open is software built for everyone — actively contributing to and evangelizing FOSS." },
+];
+
+const DIPLOMACY = [
+  { num: "D-001", icon: Globe, title: "MUN Participant", desc: "Represented diverse global perspectives in Model United Nations sessions — debating resolutions with diplomacy and rigor." },
+  { num: "D-002", icon: Mic, title: "Public Speaker", desc: "Comfortable commanding a room — whether it's a 20-person workshop or a 200-person conference hall." },
+  { num: "D-003", icon: BookOpen, title: "Debater", desc: "Sharpened arguments in competitive debates, learning that the best positions are built on the strongest opposing views." },
+];
+
+const CREATIVE = [
+  { num: "C-001", icon: Film, title: "Short Film Winner", desc: "Won a college-level short film competition — proof that storytelling is just another form of problem solving." },
+  { num: "C-002", icon: Star, title: "Storyteller", desc: "Believes every project has a story. Writing, filmmaking, and documentation are all just different rendering engines for ideas." },
+  { num: "C-003", icon: Sparkles, title: "Creative Projects", desc: "From illustrated zines to interactive fiction experiments — curiosity never stays in one lane." },
+];
+
+const TIMELINE = [
+  { year: "2020", label: "First Line of Code", note: "A 'Hello World' that changed the trajectory entirely.", side: "left" },
+  { year: "2021", label: "Built First Real Project", note: "Messy, overwrought, and completely wonderful.", side: "right" },
+  { year: "2022", label: "Joined FOSS Club", note: "Discovered open source and never looked back.", side: "left" },
+  { year: "2023", label: "Technical Lead", note: "Led the club's first major hackathon from concept to completion.", side: "right" },
+  { year: "2023", label: "Short Film Win", note: "Proved that code isn't the only language worth learning.", side: "left" },
+  { year: "2024", label: "Secretary, FOSS Club", note: "From member to steward — building community at scale.", side: "right" },
+  { year: "2025", label: "Current Projects", note: "Five experiments running in parallel, as it should be.", side: "left" },
+  { year: "2025 →", label: "Future Adventures", note: "Actively seeking opportunities to build what matters.", side: "right" },
+];
+
+const FUTURE = [
+  { icon: Cpu, title: "AI-Powered Tools", desc: "Building assistants that actually understand context — not just autocomplete on steroids." },
+  { icon: HeartHandshake, title: "Community Platform", desc: "A space for FOSS contributors to find collaborators and mentors in their own cities." },
+  { icon: Rocket, title: "Startup Ambitions", desc: "One problem, one team, one product. The details are still being debugged." },
+  { icon: GitBranch, title: "Open Source Sprints", desc: "Regular contributions to meaningful projects — putting code where the values are." },
+  { icon: Lightbulb, title: "Research Experiments", desc: "Exploring the intersection of technology and human behavior. Slowly. Carefully." },
+  { icon: Globe, title: "Global Tech Community", desc: "Connecting builders across geographies through shared curiosity and shared code." },
+];
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
+
+function RopeDivider({ label = "✦" }) {
   return (
-    <section className="hero" aria-labelledby="museum-title">
-      <div className="hero__arch" aria-hidden="true" />
-      <div className="hero__floor" aria-hidden="true" />
+    <div className="rope-divider">
+      <span className="rope-icon">{label}</span>
+    </div>
+  );
+}
 
-      <div className="hero__artifacts">
-        {ARTIFACTS.map(({ Icon, delay, rotate, size, ...position }, i) => (
-          <FloatingArtifact
-            key={i}
-            Icon={Icon}
-            delay={delay}
-            rotate={rotate}
-            size={size}
-            style={position}
-          />
-        ))}
-      </div>
+function RoomHeader({ label, title, subtitle, doodleLeft, doodleRight }) {
+  return (
+    <div className="room-header" data-room={label}>
+      <RoomDoodles left={doodleLeft} right={doodleRight} />
+      <h2 style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 700, marginBottom: "12px" }}>{title}</h2>
+      {subtitle && <p style={{ color: "var(--brown-light)", fontStyle: "italic", maxWidth: "560px", margin: "0 auto", fontSize: "17px" }}>{subtitle}</p>}
+    </div>
+  );
+}
 
-      <motion.div
-        className="hero__content"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <p className="hero__eyebrow">Est. whenever curiosity struck</p>
-
-        <h1 id="museum-title" className="hero__title">
-          The Museum of Curious Things
-          <span className="hero__title-accent">Built by Uttara</span>
-        </h1>
-
-        <p className="hero__subtitle">
-          Step through the velvet rope and wander halls of odd inventions,
-          half-finished wonders, and artifacts that probably shouldn&apos;t work — but do.
-        </p>
-
-        <motion.a
-          href="#exhibits"
-          className="hero__cta"
-          whileHover={{ scale: 1.03, y: -2 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <span className="hero__cta-label">Enter the Museum</span>
-          <span className="hero__cta-arrow" aria-hidden="true">
-            →
+function ProjectModal({ project, onClose }) {
+  if (!project) return null;
+  const Icon = project.icon;
+  const isActive = project.status === "active";
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕ Close</button>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${project.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: project.color, flexShrink: 0 }}>
+            <Icon size={22} />
+          </div>
+          <div>
+            <div className="exhibit-badge">{project.id}</div>
+            <h3 style={{ fontSize: "24px", marginTop: "4px" }}>{project.title}</h3>
+          </div>
+        </div>
+        <div className="modal-field">
+          <div className="modal-label">Year</div>
+          <div className="modal-value mono" style={{ fontSize: "15px" }}>{project.year}</div>
+        </div>
+        <div className="modal-field">
+          <div className="modal-label">Purpose</div>
+          <div className="modal-value">{project.purpose}</div>
+        </div>
+        <div className="modal-field">
+          <div className="modal-label">Technologies</div>
+          <div className="tech-tags">{project.tech.map((t) => <span key={t} className="tech-tag">{t}</span>)}</div>
+        </div>
+        <div className="modal-field">
+          <div className="modal-label">Interesting Observation</div>
+          <div className="modal-value" style={{ fontStyle: "italic", color: "var(--brown-light)" }}>"{project.observation}"</div>
+        </div>
+        <div className="modal-field">
+          <div className="modal-label">Status</div>
+          <span className={`status-pill ${isActive ? "status-active" : "status-complete"}`}>
+            <span className="status-dot" />
+            {isActive ? "Active" : "Complete"}
           </span>
-        </motion.a>
-      </motion.div>
-
-      <div className="hero__plaque" aria-hidden="true">
-        <span>Open daily</span>
-        <span className="hero__plaque-dot">·</span>
-        <span>Admission: wonder</span>
+        </div>
       </div>
-    </section>
-  )
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+export default function MuseumPortfolio() {
+  const [activeProject, setActiveProject] = useState(null);
+  const [navScrolled, setNavScrolled] = useState(false);
+  const sectionRef = useReveal();
+
+  useEffect(() => {
+    const onScroll = () => setNavScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close modal on escape
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") setActiveProject(null); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  return (
+    <div className="scrapbook-page">
+      <FontLoader />
+      <PageScrapLayer />
+
+      {/* ── NAVIGATION ────────────────────────────────────────────────────── */}
+      <nav className="museum-nav" style={{ boxShadow: navScrolled ? "0 2px 16px rgba(44,24,16,0.08)" : "none" }}>
+        <span className="nav-brand">The Museum of Curious Things</span>
+        <ul className="nav-links">
+          {[["#about", "About"], ["#gallery", "Gallery"], ["#community", "Community"], ["#timeline", "Timeline"], ["#gift-shop", "Gift Shop"]].map(([href, label]) => (
+            <li key={href}><a href={href}>{label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* ── TICKER ─────────────────────────────────────────────────────────── */}
+      <div className="ticker" style={{ marginTop: "56px" }}>
+        <div className="ticker-inner">
+          {Array(4).fill(["Final Year IT Student", "FOSS Club Secretary", "Community Builder", "MUN Participant", "Short Film Winner", "Open Source Advocate", "Builder of Curious Things"]).flat().map((t, i) => (
+            <span key={i} className="ticker-item">
+              <span className="ticker-dot">✦</span>
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── HERO ───────────────────────────────────────────────────────────── */}
+      <section className="hero" id="hero">
+        <div className="hero-arch" />
+        <div className="hero-arch hero-arch-2" />
+
+        <HeroScrapbookLayer />
+
+        <div className="bg-circle" style={{ width: 600, height: 600, top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />
+
+        <div className="hero-content-wrap">
+          <div style={{ marginBottom: "20px", animation: "fadeSlideUp 0.8s ease forwards" }}>
+            <span className="exhibit-badge">Est. 2020 · Admission: Free</span>
+          </div>
+
+          <h1 className="museum-title" style={{ animation: "fadeSlideUp 0.9s ease 0.1s both" }}>
+            The Museum of<br /><span className="highlight">Curious Things</span><br />Built by Uttara
+          </h1>
+
+          <p className="hero-subtitle" style={{ animation: "fadeSlideUp 0.9s ease 0.25s both" }}>
+            A collection of projects, experiments, leadership adventures, and creative side quests — pinned, taped, and scattered like a favorite scrapbook.
+          </p>
+
+          <a href="#about" className="enter-btn" style={{ animation: "fadeSlideUp 0.9s ease 0.4s both" }}>
+            <Map size={16} />
+            Enter the Museum
+          </a>
+
+          <div className="scroll-hint" style={{ animation: "fadeSlideUp 1s ease 0.7s both" }}>
+            <span>Scroll to explore</span>
+            <ChevronDown size={18} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── CONTENT ────────────────────────────────────────────────────────── */}
+      <div ref={sectionRef}>
+
+        {/* ── ABOUT ────────────────────────────────────────────────────────── */}
+        <section id="about" style={{ padding: "80px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="room-divider"><span className="room-number">Room I · Curiosity Profile</span></div>
+          <RoomHeader label="Room I · About Exhibit" title="A Portrait of the Builder" subtitle="Every museum needs an origin story. This is hers." doodleLeft="← start here" doodleRight="her story ✿" />
+          <RopeDivider />
+          <div className="reveal stagger-1">
+            <div className="plaque-outer">
+              <span className="plaque-scrap-note plaque-scrap-note--tl">peek inside!</span>
+              <span className="plaque-scrap-note plaque-scrap-note--br">keeper of curios ♡</span>
+              <span className="washi-tape washi-tape--gold" style={{ top: -10, left: '20%', width: 64, transform: 'rotate(-3deg)' }} />
+              <span className="washi-tape washi-tape--pink" style={{ top: -8, right: '18%', width: 56, transform: 'rotate(4deg)' }} />
+              <div className="plaque-inner">
+                <div className="plaque-corner tl" /><div className="plaque-corner tr" />
+                <div className="plaque-corner bl" /><div className="plaque-corner br" />
+                <div className="plaque-title">Exhibit Plaque · Specimen No. U-001</div>
+                <h2 className="plaque-name">Uttara Praveen</h2>
+                <p className="plaque-tagline">Builder of Things · Keeper of Curiosities</p>
+                <div style={{ height: 1, background: "var(--divider)", margin: "24px 0" }} />
+                <div className="plaque-fields">
+                  {[
+                    ["Occupation", "Builder of Things"],
+                    ["Specialization", "Turning half-baked ideas into real projects"],
+                    ["Current Status", "Final-year IT student"],
+                    ["Active Role", "Secretary, FOSS Club"],
+                    ["Side Quests", "MUN, Short Films, Community Building"],
+                    ["Current Quest", "Seeking opportunities in technology"],
+                    ["Known Habitats", "Open source repos, club meetings, hackathon halls"],
+                    ["Distinguishing Feature", "Will turn any interesting problem into a side project"],
+                  ].map(([label, val]) => (
+                    <div key={label} className="plaque-field">
+                      <span className="field-label">{label}</span>
+                      <span className="field-value">{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── GALLERY ──────────────────────────────────────────────────────── */}
+        <section id="gallery" style={{ padding: "80px 24px", background: "var(--parchment-2)" }}>
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <div className="room-divider"><span className="room-number">Room II · Main Gallery</span></div>
+            <RoomHeader label="Room II · Main Gallery" title="The Project Collection" subtitle="Five artifacts recovered from late-night coding sessions, each with its own story." doodleLeft="tap the polaroids!" doodleRight="exhibit notes →" />
+            <RopeDivider />
+            <div className="projects-grid">
+              {PROJECTS.map((p, i) => {
+                const Icon = p.icon;
+                return (
+                  <div
+                    key={p.id}
+                    className={`project-polaroid reveal stagger-${Math.min(i + 1, 6)}`}
+                    onClick={() => setActiveProject(p)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && setActiveProject(p)}
+                    title={`View ${p.title} exhibit`}
+                  >
+                    <div className="project-image">
+                      <div className="project-image-pattern" style={{ backgroundImage: p.pattern, backgroundSize: p.patternSize }} />
+                      <div className="project-image-icon">
+                        <Icon size={64} color={p.color} />
+                      </div>
+                    </div>
+                    <div className="polaroid-caption">
+                      <div className="polaroid-num">{p.id}</div>
+                      <div className="polaroid-title">{p.title}</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span className="polaroid-year mono">{p.year}</span>
+                        <span style={{ fontSize: "11px", fontFamily: "'DM Mono', monospace", color: "var(--rose)", opacity: 0.7 }}>tap to examine →</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── COMMUNITY WING ───────────────────────────────────────────────── */}
+        <section id="community" style={{ padding: "80px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="room-divider"><span className="room-number">Room III · Community Wing</span></div>
+          <RoomHeader label="Room III · Community Wing" title="The Community Wing" subtitle="Building things alone is fine. Building community is better." doodleLeft="people > projects" doodleRight="✦ FOSS forever" />
+          <RopeDivider />
+          <div className="wing-grid">
+            {COMMUNITY.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.num} className={`wing-card reveal stagger-${i + 1}`}>
+                  <div className="wing-card-num">{item.num}</div>
+                  <div className="wing-card-icon"><Icon size={22} /></div>
+                  <h3 className="wing-card-title">{item.title}</h3>
+                  <p className="wing-card-desc">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── DIPLOMACY WING ───────────────────────────────────────────────── */}
+        <section style={{ padding: "80px 24px", background: "var(--parchment-2)" }}>
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <div className="room-divider"><span className="room-number">Room IV · Diplomacy Wing</span></div>
+            <RoomHeader label="Room IV · Diplomacy Wing" title="The Diplomacy Wing" subtitle="Words as instruments. Arguments as architecture." />
+            <RopeDivider />
+            <div className="wing-grid">
+              {DIPLOMACY.map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.num} className={`wing-card reveal stagger-${i + 1}`}>
+                    <div className="wing-card-num">{item.num}</div>
+                    <div className="wing-card-icon" style={{ background: "rgba(196,137,111,0.1)", color: "var(--rose)" }}><Icon size={22} /></div>
+                    <h3 className="wing-card-title">{item.title}</h3>
+                    <p className="wing-card-desc">{item.desc}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── CREATIVE ARTS WING ───────────────────────────────────────────── */}
+        <section style={{ padding: "80px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="room-divider"><span className="room-number">Room V · Creative Arts Wing</span></div>
+          <RoomHeader label="Room V · Creative Arts Wing" title="The Creative Arts Wing" subtitle="Because the best engineers are also storytellers." />
+          <RopeDivider />
+          <div className="wing-grid">
+            {CREATIVE.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.num} className={`wing-card reveal stagger-${i + 1}`}>
+                  <div className="wing-card-num">{item.num}</div>
+                  <div className="wing-card-icon" style={{ background: "rgba(122,140,110,0.12)", color: "var(--sage)" }}><Icon size={22} /></div>
+                  <h3 className="wing-card-title">{item.title}</h3>
+                  <p className="wing-card-desc">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── TIMELINE CORRIDOR ────────────────────────────────────────────── */}
+        <section id="timeline" style={{ padding: "80px 24px", background: "var(--parchment-2)" }}>
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <div className="room-divider"><span className="room-number">The Timeline Corridor</span></div>
+            <RoomHeader label="The Timeline Corridor" title="The Corridor of Time" subtitle="A sequential exhibition of events, in approximate chronological order." />
+            <RopeDivider />
+            <div className="timeline reveal">
+              {TIMELINE.map((item, i) => (
+                <div key={i} className={`timeline-item stagger-${Math.min(i + 1, 6)}`}>
+                  <div className="timeline-dot" />
+                  <div className="timeline-content">
+                    <div className="timeline-year">{item.year}</div>
+                    <div className="timeline-label">{item.label}</div>
+                    <div className="timeline-note">{item.note}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── FUTURE EXHIBITS ──────────────────────────────────────────────── */}
+        <section style={{ padding: "80px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="room-divider"><span className="room-number">Wing VI · Future Exhibits</span></div>
+          <RoomHeader label="Wing VI · Future Exhibits" title="Future Exhibits" subtitle="Currently under construction. Expect the unexpected." />
+          <RopeDivider />
+          <div className="future-grid">
+            {FUTURE.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div key={i} className={`future-card reveal stagger-${Math.min(i + 1, 6)}`}>
+                  <span className="coming-soon">Coming Soon</span>
+                  <div className="future-icon"><Icon size={22} /></div>
+                  <h3 className="future-title">{item.title}</h3>
+                  <p className="future-desc">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── GIFT SHOP ────────────────────────────────────────────────────── */}
+        <section id="gift-shop" className="gift-shop-section">
+          <div className="gift-intro-label reveal">The Gift Shop · Final Stop</div>
+          <h2 className="gift-title reveal stagger-1">The Gift Shop</h2>
+          <p className="gift-subtitle reveal stagger-2">
+            Thank you for visiting the museum. Please take a souvenir on your way out.
+          </p>
+          <div className="gift-grid">
+            {[
+              { icon: FileText, label: "Souvenir No. 1", name: "Résumé", href: "#", color: "#C9A84C" },
+              { icon: FolderGit, label: "Souvenir No. 2", name: "GitHub", href: "https://github.com/", color: "#C4896F" },
+              { icon: Briefcase, label: "Souvenir No. 3", name: "LinkedIn", href: "https://linkedin.com/", color: "#7A8C6E" },
+              { icon: Mail, label: "Souvenir No. 4", name: "Email", href: "mailto:uttara@example.com", color: "#C9A84C" },
+            ].map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <a key={i} className={`souvenir reveal stagger-${i + 1}`} href={s.href} target="_blank" rel="noopener noreferrer">
+                  <div className="souvenir-icon" style={{ background: `${s.color}18`, color: s.color }}>
+                    <Icon size={22} />
+                  </div>
+                  <div className="souvenir-label">{s.label}</div>
+                  <div className="souvenir-name">{s.name}</div>
+                </a>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: "56px", opacity: 0.35, fontSize: "13px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.1em" }}>
+            ✦ Please don't feed the exhibits ✦
+          </div>
+        </section>
+
+        {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+        <footer className="museum-footer">
+          <p className="footer-text">
+            Curated with curiosity by{" "}
+            <span className="footer-name">Uttara Praveen</span>
+            {" "}·{" "}
+            © {new Date().getFullYear()}
+            {" "}·{" "}
+            All artifacts handcrafted
+          </p>
+        </footer>
+
+      </div>
+
+      {/* ── PROJECT MODAL ────────────────────────────────────────────────── */}
+      {activeProject && <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />}
+    </div>
+  );
 }

@@ -1,0 +1,442 @@
+/* ── Scrapbook palette & texture ─────────────────────────────────────────── */
+:root {
+  --tape-pink: rgba(232, 168, 168, 0.72);
+  --tape-sage: rgba(186, 204, 170, 0.72);
+  --tape-gold: rgba(228, 208, 148, 0.78);
+  --tape-blue: rgba(168, 196, 220, 0.72);
+  --paper-shadow: 2px 3px 0 rgba(44, 24, 16, 0.06), 0 8px 28px rgba(44, 24, 16, 0.14);
+  --handwritten: 'Caveat', cursive;
+}
+
+.scrapbook-page {
+  position: relative;
+  overflow: clip;
+}
+
+.scrapbook-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(196, 137, 111, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(201, 168, 76, 0.05) 0%, transparent 35%);
+}
+
+/* ── Washi tape ──────────────────────────────────────────────────────────── */
+.washi-tape {
+  position: absolute;
+  height: 22px;
+  border-radius: 1px;
+  opacity: 0.88;
+  box-shadow: 0 1px 2px rgba(44, 24, 16, 0.08);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.washi-tape::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.15) 0,
+    rgba(255, 255, 255, 0.15) 2px,
+    transparent 2px,
+    transparent 6px
+  );
+}
+
+.washi-tape--pink { background: var(--tape-pink); }
+.washi-tape--sage { background: var(--tape-sage); }
+.washi-tape--gold { background: var(--tape-gold); }
+.washi-tape--blue { background: var(--tape-blue); }
+
+/* ── Push pin ────────────────────────────────────────────────────────────── */
+.push-pin {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e8c4c4, #c4896f 55%, #8b5a42);
+  box-shadow: 0 2px 4px rgba(44, 24, 16, 0.25);
+  z-index: 4;
+}
+
+.push-pin::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-60%, -70%);
+}
+
+/* ── Scrap paper pieces ──────────────────────────────────────────────────── */
+.scrap-piece {
+  position: absolute;
+  background: #fffef9;
+  box-shadow: var(--paper-shadow);
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.25s ease;
+}
+
+.scrap-piece:hover {
+  box-shadow:
+    2px 4px 0 rgba(44, 24, 16, 0.08),
+    0 14px 36px rgba(44, 24, 16, 0.18);
+  z-index: 20 !important;
+}
+
+.scrap-piece:active {
+  cursor: grabbing;
+}
+
+.scrap-piece--torn {
+  clip-path: polygon(
+    0% 4%, 3% 0%, 8% 3%, 14% 0%, 22% 2%, 30% 0%, 38% 3%, 46% 0%,
+    54% 2%, 62% 0%, 70% 3%, 78% 0%, 86% 2%, 94% 0%, 100% 4%,
+    100% 96%, 97% 100%, 90% 97%, 82% 100%, 74% 98%, 66% 100%,
+    58% 97%, 50% 100%, 42% 98%, 34% 100%, 26% 97%, 18% 100%,
+    10% 98%, 4% 100%, 0% 96%
+  );
+}
+
+.scrap-polaroid {
+  padding: 10px 10px 28px;
+  width: 110px;
+}
+
+.scrap-polaroid__img {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--parchment-2, #ede4cc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  color: var(--rose, #c4896f);
+  opacity: 0.7;
+}
+
+.scrap-polaroid__cap {
+  font-family: var(--handwritten);
+  font-size: 15px;
+  color: var(--brown-light, #7a5c45);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.scrap-note {
+  padding: 14px 16px;
+  min-width: 100px;
+  max-width: 150px;
+  font-family: var(--handwritten);
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink, #2c1810);
+}
+
+.scrap-stamp {
+  padding: 6px 12px;
+  border: 2px solid var(--rose, #c4896f);
+  border-radius: 3px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rose, #c4896f);
+  opacity: 0.75;
+  transform: rotate(-12deg);
+}
+
+.scrap-sticker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  background: #fffef9;
+  border-radius: 50%;
+  box-shadow: var(--paper-shadow);
+  border: 2px dashed rgba(196, 137, 111, 0.35);
+}
+
+.scrap-sticker--clicked {
+  animation: stickerPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes stickerPop {
+  0% { transform: scale(1) rotate(var(--r, 0deg)); }
+  40% { transform: scale(1.25) rotate(calc(var(--r, 0deg) + 12deg)); }
+  100% { transform: scale(1) rotate(var(--r, 0deg)); }
+}
+
+@keyframes scrapDrift {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-16px) rotate(calc(var(--r, 0deg) + 4deg)); }
+}
+
+@keyframes scrapDriftSlow {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-10px) rotate(calc(var(--r, 0deg) - 3deg)); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(var(--r, 0deg)); }
+  25% { transform: rotate(calc(var(--r, 0deg) + 6deg)); }
+  75% { transform: rotate(calc(var(--r, 0deg) - 6deg)); }
+}
+
+.scrap-drift { animation: scrapDrift 7s ease-in-out infinite; }
+.scrap-drift-slow { animation: scrapDriftSlow 9s ease-in-out infinite; }
+
+/* ── Hero scrapbook layer ─────────────────────────────────────────────────── */
+.hero-scrapbook {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.hero-scrapbook .scrap-piece,
+.hero-scrapbook .scrap-sticker {
+  pointer-events: auto;
+}
+
+.hero-content-wrap {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 900px;
+}
+
+.enter-btn {
+  position: relative;
+}
+
+.enter-btn::before,
+.enter-btn::after {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 14px;
+  opacity: 0.55;
+  z-index: -1;
+}
+
+.enter-btn::before {
+  top: -6px;
+  left: 12px;
+  background: var(--tape-gold);
+  transform: rotate(-4deg);
+}
+
+.enter-btn::after {
+  bottom: -5px;
+  right: 14px;
+  background: var(--tape-pink);
+  transform: rotate(3deg);
+}
+
+/* ── Enhanced polaroids ──────────────────────────────────────────────────── */
+.project-polaroid {
+  background: #fffef9 !important;
+}
+
+.project-polaroid::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 56px;
+  height: 18px;
+  background: var(--tape-sage);
+  opacity: 0.85;
+  z-index: 2;
+  box-shadow: 0 1px 2px rgba(44, 24, 16, 0.1);
+}
+
+.project-polaroid::after {
+  content: '♥';
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-size: 11px;
+  color: var(--rose);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: scale(0.5);
+}
+
+.project-polaroid:hover::after {
+  opacity: 0.6;
+  transform: scale(1);
+}
+
+.project-polaroid:hover {
+  animation: wiggle 0.5s ease;
+}
+
+/* ── Plaque scrapbook ────────────────────────────────────────────────────── */
+.plaque-outer {
+  position: relative;
+}
+
+.plaque-outer .washi-tape {
+  width: 72px;
+}
+
+.plaque-scrap-note {
+  position: absolute;
+  font-family: var(--handwritten);
+  font-size: 22px;
+  color: var(--rose);
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.plaque-scrap-note--tl { top: -28px; left: -20px; }
+.plaque-scrap-note--br { bottom: -24px; right: -16px; transform: rotate(6deg); }
+
+/* ── Wing cards as pinned scraps ─────────────────────────────────────────── */
+.wing-card {
+  background: #fffef9 !important;
+}
+
+.wing-card::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e8d4a8, #c9a84c 60%, #8b7340);
+  box-shadow: 0 2px 4px rgba(44, 24, 16, 0.2);
+  z-index: 2;
+}
+
+.wing-card:hover {
+  transform: translateY(-6px) rotate(0.5deg) !important;
+}
+
+/* ── Timeline scraps ─────────────────────────────────────────────────────── */
+.timeline-content {
+  background: #fffef9 !important;
+  position: relative;
+}
+
+.timeline-content::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 44px;
+  height: 16px;
+  background: var(--tape-blue);
+  opacity: 0.7;
+  transform: rotate(2deg);
+}
+
+/* ── Future cards ────────────────────────────────────────────────────────── */
+.future-card {
+  background: #fffef9;
+}
+
+.future-card:hover .coming-soon {
+  animation: wiggle 0.4s ease;
+}
+
+/* ── Section margin scraps (fixed parallax) ──────────────────────────────── */
+.page-scrap-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.page-scrap-layer .scrap-piece {
+  pointer-events: auto;
+  opacity: 0.55;
+}
+
+/* ── Margin doodles on room headers ──────────────────────────────────────── */
+.room-header {
+  position: relative;
+}
+
+.room-header-doodle {
+  position: absolute;
+  font-family: var(--handwritten);
+  font-size: 18px;
+  color: var(--rose);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.room-header-doodle--left { left: 5%; top: 50%; transform: rotate(-12deg) translateY(-50%); }
+.room-header-doodle--right { right: 5%; top: 40%; transform: rotate(8deg); }
+
+/* ── Gift shop stickers ──────────────────────────────────────────────────── */
+.souvenir {
+  position: relative;
+}
+
+.souvenir::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 40px;
+  height: 14px;
+  background: var(--tape-gold);
+  opacity: 0.5;
+}
+
+.souvenir:hover {
+  transform: translateY(-6px) rotate(-1deg) !important;
+}
+
+/* ── Nav scrap accent ────────────────────────────────────────────────────── */
+.nav-brand::after {
+  content: ' ✦';
+  color: var(--gold);
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .hero-scrapbook .scrap-piece:not(.scrap-sticker) {
+    display: none;
+  }
+
+  .page-scrap-layer {
+    display: none;
+  }
+
+  .plaque-scrap-note,
+  .room-header-doodle {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrap-drift,
+  .scrap-drift-slow,
+  .project-polaroid:hover {
+    animation: none !important;
+  }
+}
