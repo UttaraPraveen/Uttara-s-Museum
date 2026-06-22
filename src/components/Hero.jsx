@@ -854,12 +854,10 @@ function ProjectFolderStack({ projects }) {
     });
   }
 
-  const topIdx = order[0];
-
   return (
-    <div style={{ padding: "0 0 20px" }}>
+    <div style={{ padding: "0 0 20px", perspective: 1400 }}>
       {/* Folder stack */}
-      <div style={{ position: "relative", height: 520 }}>
+      <div style={{ position: "relative", height: 520, transformStyle: "preserve-3d" }}>
         {[...order].reverse().map((pi, revRank) => {
           const rank = order.length - 1 - revRank;
           const p = projects[pi];
@@ -878,10 +876,13 @@ function ProjectFolderStack({ projects }) {
                 top,
                 zIndex: order.length - rank,
                 cursor: isTop ? "default" : "pointer",
-                transition: "top 0.38s cubic-bezier(0.34,1.3,0.64,1)",
+                transition: "top 0.4s ease, transform 0.6s cubic-bezier(0.34,1.1,0.64,1)",
+                transform: isTop ? "translateY(-15px) rotateX(-2deg)" : "translateY(0) rotateX(0deg)",
+                transformOrigin: "bottom center",
+                transformStyle: "preserve-3d"
               }}
             >
-              {/* Tab */}
+              {/* Tab (Back Cover) */}
               <div style={{
                 position: "absolute",
                 top: 0, left: TAB_LEFTS[pi],
@@ -899,25 +900,74 @@ function ProjectFolderStack({ projects }) {
                 fontWeight: isTop ? 600 : 400,
               }}>{p.id}</div>
 
-              {/* Body */}
+              {/* Main Folder Body */}
               <div style={{
                 borderRadius: "0 14px 14px 14px",
                 background: c.bg,
                 height: isTop ? 420 : 60,
-                transition: "height 0.38s cubic-bezier(0.34,1.3,0.64,1)",
+                // Opening dynamically delays the height stretch; closing shrinks it instantly
+                transition: isTop 
+                  ? "height 0.7s cubic-bezier(0.34,1.1,0.64,1) 0.15s, box-shadow 0.6s ease 0.15s"
+                  : "height 0.5s cubic-bezier(0.34,1.1,0.64,1) 0.1s, box-shadow 0.4s ease 0s",
                 position: "relative",
-                overflow: "hidden",
+                boxShadow: isTop 
+                  ? "0 40px 60px rgba(44,24,16,0.3), 0 16px 24px rgba(44,24,16,0.15)" 
+                  : "0 4px 12px rgba(44,24,16,0.1)",
               }}>
-                {/* Texture lines */}
+                
+                {/* 1. BEAT ONE: Front Flap (Hinges Open immediately) */}
                 <div style={{
-                  position: "absolute", inset: 0,
-                  backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px)",
-                  borderRadius: "0 14px 14px 14px",
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, height: 60,
+                  background: c.bg,
+                  borderRadius: isTop ? "0 14px 0 0" : "0 14px 14px 14px",
+                  transformOrigin: "top center",
+                  transform: isTop ? "rotateX(-158deg)" : "rotateX(0deg)",
+                  opacity: isTop ? 0 : 1,
+                  // Flap flies open immediately on open; waits to close
+                  transition: isTop
+                    ? "transform 0.6s cubic-bezier(0.34,1.1,0.64,1) 0s, opacity 0.4s ease 0.15s"
+                    : "transform 0.5s cubic-bezier(0.34,1.1,0.64,1) 0.2s, opacity 0.3s ease 0.2s",
+                  zIndex: 10,
                   pointerEvents: "none",
-                }} />
+                  borderTop: "1px solid rgba(255,255,255,0.15)",
+                  boxShadow: isTop ? "none" : "inset 0 -2px 4px rgba(0,0,0,0.05)"
+                }}>
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px)",
+                    borderRadius: "inherit"
+                  }} />
+                </div>
 
-                {isTop && (
-                  <>
+                {/* 2 & 3. BEAT TWO & THREE: Inner Content Wrapper */}
+                <div style={{
+                  position: "absolute", inset: 0, 
+                  overflow: "hidden", 
+                  borderRadius: "0 14px 14px 14px",
+                  pointerEvents: isTop ? "auto" : "none"
+                }}>
+                  {/* Texture lines */}
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px)",
+                    pointerEvents: "none",
+                  }} />
+
+                  {/* Content fades and slides in last (0.42s delay) */}
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    padding: "28px 36px 28px",
+                    display: "flex", flexDirection: "column",
+                    justifyContent: "flex-end",
+                    color: c.text,
+                    opacity: isTop ? 1 : 0,
+                    transform: isTop ? "translateY(0)" : "translateY(20px)",
+                    transition: isTop 
+                      ? "opacity 0.4s ease 0.42s, transform 0.4s cubic-bezier(0.34,1.1,0.64,1) 0.42s"
+                      : "opacity 0.2s ease 0s, transform 0.2s ease 0s",
+                  }}>
+                    
                     {/* Status stamp */}
                     <div style={{
                       position: "absolute", top: 20, right: 24,
@@ -931,46 +981,37 @@ function ProjectFolderStack({ projects }) {
                       {p.status === "active" ? "Active" : "Complete"}
                     </div>
 
-                    {/* Content */}
-                    <div style={{
-                      position: "absolute", inset: 0,
-                      padding: "28px 36px 28px",
-                      display: "flex", flexDirection: "column",
-                      justifyContent: "flex-end",
-                      color: c.text,
-                    }}>
-                      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: "0.15em", opacity: 0.5, marginBottom: 6 }}>
-                        {p.id} · {p.year}
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: "0.15em", opacity: 0.5, marginBottom: 6 }}>
+                      {p.id} · {p.year}
+                    </div>
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 900, lineHeight: 1, letterSpacing: "-0.02em", marginBottom: 16 }}>
+                      {p.title.split(" ")[0]}
+                      <span style={{ display: "block", fontStyle: "italic", fontSize: 26, fontWeight: 700 }}>
+                        {p.title.split(" ").slice(1).join(" ")}
+                      </span>
+                    </div>
+                    <div style={{ borderTop: `1px solid ${c.text}1A`, paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.5, display: "block", marginBottom: 3 }}>Purpose</span>
+                        <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 14, fontStyle: "italic", opacity: 0.85, lineHeight: 1.5 }}>{p.purpose}</span>
                       </div>
-                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 900, lineHeight: 1, letterSpacing: "-0.02em", marginBottom: 16 }}>
-                        {p.title.split(" ")[0]}
-                        <span style={{ display: "block", fontStyle: "italic", fontSize: 26, fontWeight: 700 }}>
-                          {p.title.split(" ").slice(1).join(" ")}
-                        </span>
+                      <div>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.5, display: "block", marginBottom: 3 }}>Observation</span>
+                        <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 14, fontStyle: "italic", opacity: 0.85, lineHeight: 1.5 }}>{p.observation}</span>
                       </div>
-                      <div style={{ borderTop: `1px solid ${c.text}1A`, paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                        <div>
-                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.5, display: "block", marginBottom: 3 }}>Purpose</span>
-                          <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 14, fontStyle: "italic", opacity: 0.85, lineHeight: 1.5 }}>{p.purpose}</span>
-                        </div>
-                        <div>
-                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.5, display: "block", marginBottom: 3 }}>Observation</span>
-                          <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 14, fontStyle: "italic", opacity: 0.85, lineHeight: 1.5 }}>{p.observation}</span>
-                        </div>
-                        <div style={{ gridColumn: "span 2", display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
-                          {p.tech.map(t => (
-                            <span key={t} style={{
-                              fontFamily: "'DM Mono', monospace", fontSize: 9,
-                              padding: "2px 8px", borderRadius: 3,
-                              border: `1px solid ${c.text}40`,
-                              color: c.text, letterSpacing: "0.06em",
-                            }}>{t}</span>
-                          ))}
-                        </div>
+                      <div style={{ gridColumn: "span 2", display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
+                        {p.tech.map(t => (
+                          <span key={t} style={{
+                            fontFamily: "'DM Mono', monospace", fontSize: 9,
+                            padding: "2px 8px", borderRadius: 3,
+                            border: `1px solid ${c.text}40`,
+                            color: c.text, letterSpacing: "0.06em",
+                          }}>{t}</span>
+                        ))}
                       </div>
                     </div>
-                  </>
-                )}
+                  </div>
+                </div>
               </div>
             </div>
           );
@@ -1001,7 +1042,6 @@ function ProjectFolderStack({ projects }) {
     </div>
   );
 }
-
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function MuseumPortfolio() {
   const [navScrolled, setNavScrolled] = useState(false);
