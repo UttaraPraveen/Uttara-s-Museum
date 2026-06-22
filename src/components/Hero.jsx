@@ -114,24 +114,6 @@ const FontLoader = () => (
       padding: 2px 8px;
     }
 
-    /* Polaroid card */
-    .polaroid {
-      background: white;
-      padding: 14px 14px 40px;
-      box-shadow:
-        0 2px 4px rgba(44,24,16,0.08),
-        0 8px 24px rgba(44,24,16,0.12),
-        2px 2px 0 rgba(44,24,16,0.04);
-      transform-origin: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .polaroid:hover {
-      box-shadow:
-        0 4px 8px rgba(44,24,16,0.12),
-        0 16px 40px rgba(44,24,16,0.18),
-        2px 2px 0 rgba(44,24,16,0.06);
-    }
-
     /* Museum room header */
     .room-header {
       text-align: center;
@@ -165,14 +147,6 @@ const FontLoader = () => (
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(30px); }
       to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    @keyframes borderGlow {
-      0%, 100% { border-color: rgba(201,168,76,0.3); }
-      50% { border-color: rgba(201,168,76,0.7); }
     }
     @keyframes tickerScroll {
       from { transform: translateX(0); }
@@ -426,139 +400,6 @@ const FontLoader = () => (
       .plaque-inner { padding: 32px 24px; }
       .plaque-field { grid-template-columns: 1fr; gap: 2px; }
     }
-
-    /* Project cards */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 40px;
-      margin-top: 48px;
-    }
-    .project-polaroid {
-      background: white;
-      padding: 16px 16px 48px;
-      box-shadow: 0 3px 6px rgba(44,24,16,0.08), 0 12px 32px rgba(44,24,16,0.12);
-      cursor: pointer;
-      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
-      position: relative;
-    }
-    .project-polaroid:nth-child(odd) { transform: rotate(-1.5deg); }
-    .project-polaroid:nth-child(even) { transform: rotate(1deg); }
-    .project-polaroid:hover {
-      transform: rotate(0) translateY(-8px) scale(1.02) !important;
-      box-shadow: 0 8px 16px rgba(44,24,16,0.12), 0 24px 60px rgba(44,24,16,0.18);
-      z-index: 10;
-    }
-    .project-image {
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: var(--parchment-2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-    .project-image-icon { opacity: 0.2; }
-    .project-image-pattern {
-      position: absolute;
-      inset: 0;
-      background-size: 20px 20px;
-      opacity: 0.15;
-    }
-    .polaroid-caption {
-      padding: 0 4px;
-    }
-    .polaroid-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--rose);
-      letter-spacing: 0.15em;
-      margin-bottom: 4px;
-    }
-    .polaroid-title {
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 8px;
-      color: var(--ink);
-    }
-    .polaroid-year {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--brown-light);
-    }
-
-    /* Expanded project modal overlay */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(44,24,16,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .modal-card {
-      background: var(--cream-card);
-      border: 1px solid var(--divider);
-      border-radius: 4px;
-      max-width: 600px;
-      width: 100%;
-      padding: 40px;
-      position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-close {
-      position: absolute;
-      top: 16px; right: 16px;
-      background: none;
-      border: 1px solid var(--divider);
-      cursor: pointer;
-      padding: 6px 12px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--brown-light);
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
-    .modal-close:hover { background: var(--brown); color: var(--parchment); }
-    .modal-field { margin-bottom: 20px; }
-    .modal-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 4px;
-    }
-    .modal-value { color: var(--brown); }
-    .tech-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .tech-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      padding: 3px 10px;
-      background: rgba(122,92,69,0.1);
-      border: 1px solid rgba(122,92,69,0.2);
-      border-radius: 2px;
-      color: var(--brown-light);
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      padding: 4px 12px;
-      border-radius: 99px;
-    }
-    .status-active { background: rgba(122,140,110,0.15); color: var(--sage); border: 1px solid rgba(122,140,110,0.3); }
-    .status-complete { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
     /* Wing cards */
     .wing-grid {
@@ -992,46 +833,170 @@ function RoomHeader({ label, title, subtitle, doodleLeft, doodleRight }) {
   );
 }
 
-function ProjectModal({ project, onClose }) {
-  if (!project) return null;
-  const Icon = project.icon;
-  const isActive = project.status === "active";
+// ─── Physical Folder Gallery ──────────────────────────────────────────────────
+function ProjectFolderStack({ projects }) {
+  const [order, setOrder] = useState(projects.map((_, i) => i));
+
+  const FOLDER_COLORS = [
+    { bg: "#6B7F5A", tabBg: "#56673F", text: "#EEF2E8", tabText: "#D4E0C4" },
+    { bg: "#2C2118", tabBg: "#1A1410", text: "#E8D5B8", tabText: "#C4A87A" },
+    { bg: "#E8C8D0", tabBg: "#D4A0AE", text: "#3A2028", tabText: "#5A2838" },
+    { bg: "#C8D8E8", tabBg: "#A0B8CC", text: "#1A2A38", tabText: "#1A3050" },
+    { bg: "#E8D8B0", tabBg: "#D4BC80", text: "#3A2A10", tabText: "#5A4010" },
+  ];
+
+  const TAB_LEFTS = [0, 100, 200, 300, 400];
+
+  function bringForward(pi) {
+    setOrder(prev => {
+      const next = prev.filter(i => i !== pi);
+      return [pi, ...next];
+    });
+  }
+
+  const topIdx = order[0];
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕ Close</button>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${project.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: project.color, flexShrink: 0 }}>
-            <Icon size={22} />
-          </div>
-          <div>
-            <div className="exhibit-badge">{project.id}</div>
-            <h3 style={{ fontSize: "24px", marginTop: "4px" }}>{project.title}</h3>
-          </div>
-        </div>
-        <div className="modal-field">
-          <div className="modal-label">Year</div>
-          <div className="modal-value mono" style={{ fontSize: "15px" }}>{project.year}</div>
-        </div>
-        <div className="modal-field">
-          <div className="modal-label">Purpose</div>
-          <div className="modal-value">{project.purpose}</div>
-        </div>
-        <div className="modal-field">
-          <div className="modal-label">Technologies</div>
-          <div className="tech-tags">{project.tech.map((t) => <span key={t} className="tech-tag">{t}</span>)}</div>
-        </div>
-        <div className="modal-field">
-          <div className="modal-label">Interesting Observation</div>
-          <div className="modal-value" style={{ fontStyle: "italic", color: "var(--brown-light)" }}>"{project.observation}"</div>
-        </div>
-        <div className="modal-field">
-          <div className="modal-label">Status</div>
-          <span className={`status-pill ${isActive ? "status-active" : "status-complete"}`}>
-            <span className="status-dot" />
-            {isActive ? "Active" : "Complete"}
-          </span>
-        </div>
+    <div style={{ padding: "0 0 20px" }}>
+      {/* Folder stack */}
+      <div style={{ position: "relative", height: 520 }}>
+        {[...order].reverse().map((pi, revRank) => {
+          const rank = order.length - 1 - revRank;
+          const p = projects[pi];
+          const c = FOLDER_COLORS[pi];
+          const isTop = rank === 0;
+          const tops = [460, 410, 360, 310, 260];
+          const top = tops[rank];
+
+          return (
+            <div
+              key={pi}
+              onClick={() => !isTop && bringForward(pi)}
+              style={{
+                position: "absolute",
+                left: 0, right: 0,
+                top,
+                zIndex: order.length - rank,
+                cursor: isTop ? "default" : "pointer",
+                transition: "top 0.38s cubic-bezier(0.34,1.3,0.64,1)",
+              }}
+            >
+              {/* Tab */}
+              <div style={{
+                position: "absolute",
+                top: 0, left: TAB_LEFTS[pi],
+                width: 96, height: 34,
+                borderRadius: "8px 8px 0 0",
+                background: c.tabBg,
+                color: c.tabText,
+                transform: "translateY(-100%)",
+                display: "flex",
+                alignItems: "center",
+                paddingLeft: 14,
+                fontFamily: "'DM Mono', monospace",
+                fontSize: 11,
+                letterSpacing: "0.08em",
+                fontWeight: isTop ? 600 : 400,
+              }}>{p.id}</div>
+
+              {/* Body */}
+              <div style={{
+                borderRadius: "0 14px 14px 14px",
+                background: c.bg,
+                height: isTop ? 420 : 60,
+                transition: "height 0.38s cubic-bezier(0.34,1.3,0.64,1)",
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                {/* Texture lines */}
+                <div style={{
+                  position: "absolute", inset: 0,
+                  backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px)",
+                  borderRadius: "0 14px 14px 14px",
+                  pointerEvents: "none",
+                }} />
+
+                {isTop && (
+                  <>
+                    {/* Status stamp */}
+                    <div style={{
+                      position: "absolute", top: 20, right: 24,
+                      fontFamily: "'DM Mono', monospace", fontSize: 9,
+                      letterSpacing: "0.2em", textTransform: "uppercase",
+                      padding: "4px 10px", borderRadius: 3,
+                      border: `1.5px solid ${c.text}`,
+                      color: c.text, opacity: 0.55,
+                      transform: "rotate(2deg)",
+                    }}>
+                      {p.status === "active" ? "Active" : "Complete"}
+                    </div>
+
+                    {/* Content */}
+                    <div style={{
+                      position: "absolute", inset: 0,
+                      padding: "28px 36px 28px",
+                      display: "flex", flexDirection: "column",
+                      justifyContent: "flex-end",
+                      color: c.text,
+                    }}>
+                      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: "0.15em", opacity: 0.5, marginBottom: 6 }}>
+                        {p.id} · {p.year}
+                      </div>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 48, fontWeight: 900, lineHeight: 1, letterSpacing: "-0.02em", marginBottom: 16 }}>
+                        {p.title.split(" ")[0]}
+                        <span style={{ display: "block", fontStyle: "italic", fontSize: 26, fontWeight: 700 }}>
+                          {p.title.split(" ").slice(1).join(" ")}
+                        </span>
+                      </div>
+                      <div style={{ borderTop: `1px solid ${c.text}1A`, paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div>
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.5, display: "block", marginBottom: 3 }}>Purpose</span>
+                          <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 14, fontStyle: "italic", opacity: 0.85, lineHeight: 1.5 }}>{p.purpose}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.5, display: "block", marginBottom: 3 }}>Observation</span>
+                          <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 14, fontStyle: "italic", opacity: 0.85, lineHeight: 1.5 }}>{p.observation}</span>
+                        </div>
+                        <div style={{ gridColumn: "span 2", display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
+                          {p.tech.map(t => (
+                            <span key={t} style={{
+                              fontFamily: "'DM Mono', monospace", fontSize: 9,
+                              padding: "2px 8px", borderRadius: 3,
+                              border: `1px solid ${c.text}40`,
+                              color: c.text, letterSpacing: "0.06em",
+                            }}>{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Nav dots */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 20 }}>
+        {projects.map((p, pi) => (
+          <button
+            key={pi}
+            onClick={() => bringForward(pi)}
+            style={{
+              width: 8, height: 8, borderRadius: "50%",
+              background: FOLDER_COLORS[pi].bg,
+              border: "none", cursor: "pointer", padding: 0,
+              transform: order[0] === pi ? "scale(1.4)" : "scale(1)",
+              opacity: order[0] === pi ? 1 : 0.4,
+              transition: "transform 0.2s, opacity 0.2s",
+            }}
+            aria-label={`View ${p.title}`}
+          />
+        ))}
+      </div>
+      <div style={{ textAlign: "center", fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: "0.12em", color: "var(--brown-light)", marginTop: 10, opacity: 0.6 }}>
+        click a folder behind to pull it forward
       </div>
     </div>
   );
@@ -1039,7 +1004,6 @@ function ProjectModal({ project, onClose }) {
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function MuseumPortfolio() {
-  const [activeProject, setActiveProject] = useState(null);
   const [navScrolled, setNavScrolled] = useState(false);
   const sectionRef = useReveal();
 
@@ -1047,13 +1011,6 @@ export default function MuseumPortfolio() {
     const onScroll = () => setNavScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Close modal on escape
-  useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") setActiveProject(null); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   return (
@@ -1164,39 +1121,18 @@ export default function MuseumPortfolio() {
         <section id="gallery" style={{ padding: "80px 24px", background: "var(--parchment-2)" }}>
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
             <div className="room-divider"><span className="room-number">Room II · Main Gallery</span></div>
-            <RoomHeader label="Room II · Main Gallery" title="The Project Collection" subtitle="Five artifacts recovered from late-night coding sessions, each with its own story." doodleLeft="tap the polaroids!" doodleRight="exhibit notes →" />
+            <RoomHeader
+              label="Room II · Main Gallery"
+              title="The Project Archive"
+              subtitle="Five artifacts recovered from late-night coding sessions. Open a folder to examine."
+              doodleLeft="tap the folders!"
+              doodleRight="exhibit files →"
+            />
             <RopeDivider />
-            <div className="projects-grid">
-              {PROJECTS.map((p, i) => {
-                const Icon = p.icon;
-                return (
-                  <div
-                    key={p.id}
-                    className={`project-polaroid reveal stagger-${Math.min(i + 1, 6)}`}
-                    onClick={() => setActiveProject(p)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && setActiveProject(p)}
-                    title={`View ${p.title} exhibit`}
-                  >
-                    <div className="project-image">
-                      <div className="project-image-pattern" style={{ backgroundImage: p.pattern, backgroundSize: p.patternSize }} />
-                      <div className="project-image-icon">
-                        <Icon size={64} color={p.color} />
-                      </div>
-                    </div>
-                    <div className="polaroid-caption">
-                      <div className="polaroid-num">{p.id}</div>
-                      <div className="polaroid-title">{p.title}</div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span className="polaroid-year mono">{p.year}</span>
-                        <span style={{ fontSize: "11px", fontFamily: "'DM Mono', monospace", color: "var(--rose)", opacity: 0.7 }}>tap to examine →</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            
+            {/* The old polaroid grid has been replaced by the Project Folder Stack */}
+            <ProjectFolderStack projects={PROJECTS} />
+
           </div>
         </section>
 
@@ -1347,9 +1283,6 @@ export default function MuseumPortfolio() {
         </footer>
 
       </div>
-
-      {/* ── PROJECT MODAL ────────────────────────────────────────────────── */}
-      {activeProject && <ProjectModal project={activeProject} onClose={() => setActiveProject(null)} />}
     </div>
   );
 }
