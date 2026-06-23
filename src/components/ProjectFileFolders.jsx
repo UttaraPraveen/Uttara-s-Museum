@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { FileText, Code, BookOpen, FolderGit } from "lucide-react";
 
 // ─── Project File Folders ─────────────────────────────────────────────────────
 export default function ProjectFileFolders({ projects }) {
   const [activeFolder, setActiveFolder] = useState(0);
   const [activeFile, setActiveFile] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const FILES = [
     { name: "overview.md", icon: FileText, label: "Project Overview" },
@@ -17,12 +17,8 @@ export default function ProjectFileFolders({ projects }) {
 
   function switchFolder(i) {
     if (i === activeFolder) return;
-    setIsAnimating(true);
-    setTimeout(() => {
-      setActiveFolder(i);
-      setActiveFile(0);
-      setIsAnimating(false);
-    }, 180);
+    setActiveFolder(i);
+    setActiveFile(0);
   }
 
   const statusColor = p.status === "active" ? "var(--sage)" : "var(--rose)";
@@ -100,17 +96,20 @@ export default function ProjectFileFolders({ projects }) {
         overflow: "hidden",
         position: "relative",
         boxShadow: "0 4px 28px rgba(44,24,16,0.1)",
-        opacity: isAnimating ? 0 : 1,
-        transform: isAnimating ? "translateY(6px)" : "translateY(0)",
-        transition: "opacity 0.18s ease, transform 0.18s ease",
       }}>
 
         {/* Bottom accent bar */}
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: 3,
-          background: `linear-gradient(90deg, ${p.color}, var(--rose), var(--gold))`,
-          opacity: 0.25, borderRadius: "0 0 12px 12px",
-        }} />
+        <motion.div
+          key={`accent-${activeFolder}`}
+          style={{
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 3,
+            background: `linear-gradient(90deg, ${p.color}, var(--rose), var(--gold))`,
+            borderRadius: "0 0 12px 12px",
+          }}
+          initial={{ opacity: 0.1, scaleX: 0.4 }}
+          animate={{ opacity: 0.25, scaleX: 1 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        />
 
         {/* Sidebar */}
         <div style={{
@@ -196,132 +195,127 @@ export default function ProjectFileFolders({ projects }) {
 
         {/* Document content */}
         <div style={{ flex: 1, padding: "28px 30px", overflowY: "auto", maxHeight: 380 }}>
-          <div
-            key={`${activeFolder}-${activeFile}`}
-            style={{
-              background: "white",
-              border: "1px solid rgba(74,55,40,0.1)",
-              borderRadius: 4,
-              padding: "28px 28px 32px",
-              position: "relative",
-              boxShadow: "0 1px 4px rgba(44,24,16,0.05), 0 4px 16px rgba(44,24,16,0.07)",
-              animation: "filePaperIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both",
-            }}
-          >
-            {/* Hole punches */}
-            {[28, 64, 100].map(top => (
-              <div key={top} style={{
-                position: "absolute", left: 10, top,
-                width: 13, height: 13, borderRadius: "50%",
-                background: "var(--parchment-2)",
-                border: "1px solid rgba(74,55,40,0.12)",
-              }} />
-            ))}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${activeFolder}-${activeFile}`}
+              initial={{ opacity: 0, y: 14, rotate: 0.4 }}
+              animate={{ opacity: 1, y: 0, rotate: 0 }}
+              exit={{ opacity: 0, y: -8, rotate: -0.4 }}
+              transition={{ duration: 0.3, ease: [0.34, 1.2, 0.64, 1] }}
+              style={{
+                background: "white",
+                border: "1px solid rgba(74,55,40,0.1)",
+                borderRadius: 4,
+                padding: "28px 28px 32px",
+                position: "relative",
+                boxShadow: "0 1px 4px rgba(44,24,16,0.05), 0 4px 16px rgba(44,24,16,0.07)",
+              }}
+            >
+              {/* Hole punches */}
+              {[28, 64, 100].map(top => (
+                <div key={top} style={{
+                  position: "absolute", left: 10, top,
+                  width: 13, height: 13, borderRadius: "50%",
+                  background: "var(--parchment-2)",
+                  border: "1px solid rgba(74,55,40,0.12)",
+                }} />
+              ))}
 
-            {/* Paperclip */}
-            <div style={{
-              position: "absolute", top: -8, left: 34,
-              color: "var(--gold)", fontSize: 20,
-              transform: "rotate(-30deg)", opacity: 0.55,
-              fontFamily: "sans-serif",
-            }}>📎</div>
-
-            {/* Status stamp */}
-            <div style={{
-              position: "absolute", top: 20, right: 20,
-              fontFamily: "'DM Mono', monospace",
-              fontSize: 9, letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              padding: "5px 10px",
-              borderRadius: 3,
-              border: `1.5px solid ${statusColor}`,
-              color: statusColor,
-              background: `${statusColor}12`,
-              transform: "rotate(3deg)",
-            }}>
-              {p.status === "active" ? "Active" : "Complete"}
-            </div>
-
-            {/* Doc header */}
-            <div style={{ paddingLeft: 22 }}>
+              {/* Paperclip */}
               <div style={{
-                fontFamily: "'DM Mono', monospace", fontSize: 10,
-                letterSpacing: "0.18em", color: "var(--rose)", marginBottom: 4,
-              }}>{p.id} · {FILES[activeFile].name}</div>
-              <h3 style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 22, fontWeight: 700, color: "var(--ink)",
-                marginBottom: 2, lineHeight: 1.2,
-              }}>{p.title}</h3>
-              <div style={{
-                fontFamily: "'DM Mono', monospace", fontSize: 11,
-                color: "var(--brown-light)", marginBottom: 20,
-              }}>{p.year}</div>
+                position: "absolute", top: -8, left: 34,
+                color: "var(--gold)", fontSize: 20,
+                transform: "rotate(-30deg)", opacity: 0.55,
+                fontFamily: "sans-serif",
+              }}>📎</div>
 
-              {/* Dashed divider */}
+              {/* Status stamp */}
               <div style={{
-                height: 1, margin: "16px 0",
-                background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)",
-              }} />
+                position: "absolute", top: 20, right: 20,
+                fontFamily: "'DM Mono', monospace",
+                fontSize: 9, letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                padding: "5px 10px",
+                borderRadius: 3,
+                border: `1.5px solid ${statusColor}`,
+                color: statusColor,
+                background: `${statusColor}12`,
+                transform: "rotate(3deg)",
+              }}>
+                {p.status === "active" ? "Active" : "Complete"}
+              </div>
 
-              {/* File-specific content */}
-              {activeFile === 0 && (
-                <>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Project Overview</div>
-                  <p style={{ fontSize: 15, color: "var(--brown)", lineHeight: 1.7, marginBottom: 16 }}>{p.purpose}</p>
-                  <div style={{ height: 1, margin: "16px 0", background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)" }} />
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Exhibit ID</div>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--rose)" }}>{p.id}</div>
-                </>
-              )}
-              {activeFile === 1 && (
-                <>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 8 }}>Tech Stack</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                    {p.tech.map(t => (
-                      <span key={t} style={{
-                        fontFamily: "'DM Mono', monospace", fontSize: 10,
-                        padding: "3px 9px",
-                        background: "rgba(74,55,40,0.07)",
-                        border: "1px solid rgba(74,55,40,0.15)",
-                        borderRadius: 3, color: "var(--brown-light)",
-                      }}>{t}</span>
-                    ))}
-                  </div>
-                  <div style={{ height: 1, margin: "16px 0", background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)" }} />
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Stack Count</div>
-                  <div style={{ fontSize: 15, color: "var(--brown)" }}>{p.tech.length} technologies</div>
-                </>
-              )}
-              {activeFile === 2 && (
-                <>
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 8 }}>Field Observation</div>
-                  <div style={{
-                    background: "rgba(201,168,76,0.07)",
-                    borderLeft: "3px solid var(--gold)",
-                    padding: "12px 16px",
-                    borderRadius: "0 4px 4px 0",
-                    fontStyle: "italic", fontSize: 14,
-                    color: "var(--brown-light)", lineHeight: 1.7,
-                    marginBottom: 16,
-                  }}>"{p.observation}"</div>
-                  <div style={{ height: 1, margin: "16px 0", background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)" }} />
-                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Logged</div>
-                  <div style={{ fontSize: 14, color: "var(--brown-light)" }}>{p.year} · FOSS Club Archives</div>
-                </>
-              )}
-            </div>
-          </div>
+              {/* Doc header */}
+              <div style={{ paddingLeft: 22 }}>
+                <div style={{
+                  fontFamily: "'DM Mono', monospace", fontSize: 10,
+                  letterSpacing: "0.18em", color: "var(--rose)", marginBottom: 4,
+                }}>{p.id} · {FILES[activeFile].name}</div>
+                <h3 style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 22, fontWeight: 700, color: "var(--ink)",
+                  marginBottom: 2, lineHeight: 1.2,
+                }}>{p.title}</h3>
+                <div style={{
+                  fontFamily: "'DM Mono', monospace", fontSize: 11,
+                  color: "var(--brown-light)", marginBottom: 20,
+                }}>{p.year}</div>
+
+                <div style={{
+                  height: 1, margin: "16px 0",
+                  background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)",
+                }} />
+
+                {activeFile === 0 && (
+                  <>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Project Overview</div>
+                    <p style={{ fontSize: 15, color: "var(--brown)", lineHeight: 1.7, marginBottom: 16 }}>{p.purpose}</p>
+                    <div style={{ height: 1, margin: "16px 0", background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)" }} />
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Exhibit ID</div>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "var(--rose)" }}>{p.id}</div>
+                  </>
+                )}
+                {activeFile === 1 && (
+                  <>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 8 }}>Tech Stack</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+                      {p.tech.map(t => (
+                        <span key={t} style={{
+                          fontFamily: "'DM Mono', monospace", fontSize: 10,
+                          padding: "3px 9px",
+                          background: "rgba(74,55,40,0.07)",
+                          border: "1px solid rgba(74,55,40,0.15)",
+                          borderRadius: 3, color: "var(--brown-light)",
+                        }}>{t}</span>
+                      ))}
+                    </div>
+                    <div style={{ height: 1, margin: "16px 0", background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)" }} />
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Stack Count</div>
+                    <div style={{ fontSize: 15, color: "var(--brown)" }}>{p.tech.length} technologies</div>
+                  </>
+                )}
+                {activeFile === 2 && (
+                  <>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 8 }}>Field Observation</div>
+                    <div style={{
+                      background: "rgba(201,168,76,0.07)",
+                      borderLeft: "3px solid var(--gold)",
+                      padding: "12px 16px",
+                      borderRadius: "0 4px 4px 0",
+                      fontStyle: "italic", fontSize: 14,
+                      color: "var(--brown-light)", lineHeight: 1.7,
+                      marginBottom: 16,
+                    }}>"{p.observation}"</div>
+                    <div style={{ height: 1, margin: "16px 0", background: "repeating-linear-gradient(90deg, var(--divider) 0, var(--divider) 4px, transparent 4px, transparent 10px)" }} />
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>Logged</div>
+                    <div style={{ fontSize: 14, color: "var(--brown-light)" }}>{p.year} · FOSS Club Archives</div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
-
-      {/* Keyframe for paper slide-in — inject once */}
-      <style>{`
-        @keyframes filePaperIn {
-          from { opacity: 0; transform: translateY(10px) rotate(0.4deg); }
-          to   { opacity: 1; transform: translateY(0) rotate(0); }
-        }
-      `}</style>
     </div>
   );
 }
